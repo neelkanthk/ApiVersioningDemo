@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 Route::group(['namespace' => 'Api\V1', 'prefix' => 'v1', 'as' => 'api.v1.'], function () {
     Route::get('songs', 'SongsController@index')->name('songs.index');
     Route::get('songs/{id}', 'SongsController@show')->name('songs.show')->where('id', '[0-9]+');
+    Route::patch('songs/{id}', 'SongsController@update')->name('songs.update')->where('id', '[0-9]+');
 });
 //Api Version 2 routes
 Route::group(['namespace' => 'Api\V2', 'prefix' => 'v2', 'as' => 'api.v2.'], function () {

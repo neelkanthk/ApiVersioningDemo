@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Song extends Model {
 
+    protected $fillable = [
+        "title", "artist", "genre", "duration", "total_likes"
+    ];
+
     /**
      * Modify model object
      * @return $this
