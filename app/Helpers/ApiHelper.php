@@ -10,9 +10,9 @@ class ApiHelper {
             'code' => $code,
             'message' => $httpStatus[$code]
         ];
-        if (empty($errors)) {
+        if (!empty($data) && empty($errors)) {
             $response['data'] = is_array($data) && !empty($data) ? $data : (array) $data;
-        } else {
+        } else if (!empty($errors)) {
             $response['errors'] = is_array($errors) && !empty($errors) ? $errors : (array) $errors;
         }
         return $response;
