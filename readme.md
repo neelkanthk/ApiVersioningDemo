@@ -16,16 +16,16 @@ $ cp .env.example .env
 ```
 Edit the .env file and change the following MySQL connection variables:
 
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=your_mysql_db_name
-DB_USERNAME=your_mysql_username
+DB_CONNECTION=mysql\
+DB_HOST=127.0.0.1\
+DB_PORT=3306\
+DB_DATABASE=your_mysql_db_name\
+DB_USERNAME=your_mysql_username\
 DB_PASSWORD=your_mysql_password
 
 Create a database:
 ```sh
-$ CREATE DATABASE your_mysql_db_name
+mysql> CREATE DATABASE your_mysql_db_name
 ```
 Create required tables
 ```sh
