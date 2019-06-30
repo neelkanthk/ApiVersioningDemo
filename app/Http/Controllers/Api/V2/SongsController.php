@@ -3,10 +3,8 @@
 namespace App\Http\Controllers\Api\V2;
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Song;
 use App\Helpers\ApiHelper;
-use Exception;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Api\V1\SongsController as ApiV1SongsController;
 
@@ -29,18 +27,14 @@ class SongsController extends ApiV1SongsController {
                 $code = 400;
                 $response = ApiHelper::prepareApiResponse($songs, $code, $validator->errors()->all());
             } else {
-                $songs = Song::select("title", "artist", "genre", "duration", "total_likes")->get()->toArray();
-                if (empty($songs)) {
-                    $code = 204;
-                    $response = ApiHelper::prepareApiResponse($songs, $code);
-                } else {
-                    $code = 200;
-                    $response = ApiHelper::prepareApiResponse($songs, $code);
-                }
+                $limit = !empty($request->limit) ? $request->limit : 5;
+                $offset = !empty($request->offset) ? $request->offset : 0;
+                $songs = Song::select("id", "title", "artist", "genre", "duration", "total_likes")
+                                ->limit($limit)->offset($offset)
+                                ->get()->toArray();
+                $code = 200;
+                $response = ApiHelper::prepareApiResponse($songs, $code);
             }
-        } catch (Exception $ex) {
-            $code = 500;
-            $response = ApiHelper::prepareApiResponse($songs, $code, $ex->getMessage());
         } finally {
             return response()->json($response, $response['code']);
         }
@@ -55,18 +49,45 @@ class SongsController extends ApiV1SongsController {
     public function show($id) {
         $song = array();
         try {
-            $song = Song::select("title", "artist", "genre", "duration", "total_likes")->find($id)->modify()->toArray();
-            if (!empty($song)) {
-                $code = 200;
-                $response = ApiHelper::prepareApiResponse($song, $code);
+            $song = Song::select("id", "title", "artist", "genre", "duration", "total_likes")->findOrFail($id)->toArray();
+            $code = 200;
+            $response = ApiHelper::prepareApiResponse($song, $code);
+        } catch (ModelNotFoundException $ex) {
+            $code = 404;
+            $response = ApiHelper::prepareApiResponse($song, $code);
+        } finally {
+            return response()->json($response, $response['code']);
+        }
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request) {
+        $song = array();
+        try {
+            $validator = Validator::make($request->all(), [
+                        'title' => 'string',
+                        'artist' => 'string',
+                        'genre' => 'string',
+                        'duration' => 'numeric'
+            ]);
+            if ($validator->fails()) {
+                $code = 400;
+                $response = ApiHelper::prepareApiResponse($song, $code, $validator->errors()->all());
             } else {
-                $code = 204;
-                $data = array();
-                $response = ApiHelper::prepareApiResponse($song, $code);
+                $song = new Song;
+                $song->title = $request->title;
+                $song->artist = $request->artist;
+                $song->genre = $request->genre;
+                $song->duration = $request->duration;
+                $song->save();
+                $code = 201;
+                $response = ApiHelper::prepareApiResponse($song->toArray(), $code);
             }
-        } catch (Exception $ex) {
-            $code = 500;
-            $response = ApiHelper::prepareApiResponse($song, $code, $ex->getMessage());
         } finally {
             return response()->json($response, $response['code']);
         }
